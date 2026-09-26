@@ -1,5 +1,7 @@
 # Modern Data Stack in a Box
 
+[![ci](https://github.com/VineethVadlapalli/olist-modern-data-stack/actions/workflows/ci.yml/badge.svg)](https://github.com/VineethVadlapalli/olist-modern-data-stack/actions/workflows/ci.yml) ![dbt](https://img.shields.io/badge/dbt-1.12-FF694B) ![DuckDB](https://img.shields.io/badge/DuckDB-1.5-FFF000) ![Dagster](https://img.shields.io/badge/Dagster-1.13-4F43DD) ![tests](https://img.shields.io/badge/data%20tests-62-2a78d6)
+
 **An end-to-end, production-style analytics platform on 100K real e-commerce orders, built with dbt, DuckDB and Dagster.** Raw CSVs go in; tested, documented fact and dimension tables and business KPI marts come out, on a daily schedule, with CI on every push.
 
 ![Architecture and headline findings](docs/images/cover.png)
