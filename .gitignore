@@ -1,7 +1,9 @@
 .venv/
 __pycache__/
-data/raw/
-data/warehouse/
+data/raw/*
+!data/raw/.gitkeep
+data/warehouse/*
+!data/warehouse/.gitkeep
 olist_dbt/target/
 olist_dbt/logs/
 olist_dbt/dbt_packages/
