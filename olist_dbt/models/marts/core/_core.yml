@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order, with value, payment, delivery and review facts. The main table for order analytics.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_unique_id
+        description: The real person who placed the order.
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('dim_customers'), field: customer_unique_id}
+      - name: customer_order_number
+        description: 1 for a person's first order, 2 for their second, and so on.
+      - name: has_payment_mismatch
+        description: True when total paid differs from items + freight by more than 1 BRL (a known source-data quirk).
+      - name: is_delivered_late
+        description: True when delivered after the estimated delivery date. Null if not delivered.
+
+  - name: fct_order_items
+    description: One row per item in an order. Incremental model with a 3-day lookback for late-arriving rows.
+    columns:
+      - name: order_item_key
+        tests: [unique, not_null]
+      - name: product_id
+        tests:
+          - relationships:
+              arguments: {to: ref('dim_products'), field: product_id}
+      - name: seller_id
+        tests:
+          - relationships:
+              arguments: {to: ref('dim_sellers'), field: seller_id}
+
+  - name: dim_customers
+    description: One row per real person (customer_unique_id), with lifetime stats and acquisition cohort.
+    columns:
+      - name: customer_unique_id
+        tests: [unique, not_null]
+      - name: cohort_month
+        description: Month of the customer's first non-cancelled order.
+
+  - name: dim_products
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+      - name: category_name
+        description: English category name; 'unknown' when the source has no category.
+        tests: [not_null]
+
+  - name: dim_sellers
+    columns:
+      - name: seller_id
+        tests: [unique, not_null]

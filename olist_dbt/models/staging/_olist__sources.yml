@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: olist
+    description: Raw CSV exports of the Olist Brazilian E-commerce dataset (2016-2018), read directly by DuckDB.
+    config:
+      external_location: "read_csv_auto('{{ var(\"raw_dir\") }}/{name}.csv', header = true)"
+    tables:
+      - name: olist_customers_dataset
+        description: One row per customer_id. A real person (customer_unique_id) gets a new customer_id for every order.
+        columns:
+          - name: customer_id
+            tests: [unique, not_null]
+      - name: olist_orders_dataset
+        columns:
+          - name: order_id
+            tests: [unique, not_null]
+      - name: olist_order_items_dataset
+      - name: olist_order_payments_dataset
+      - name: olist_order_reviews_dataset
+        description: Not unique on review_id or order_id in the raw data; deduplicated in staging.
+      - name: olist_products_dataset
+        columns:
+          - name: product_id
+            tests: [unique, not_null]
+      - name: olist_sellers_dataset
+        columns:
+          - name: seller_id
+            tests: [unique, not_null]
+      - name: olist_geolocation_dataset
+        description: ~1M rows, many per zip-code prefix. Collapsed to one row per prefix in staging.
+      - name: product_category_name_translation

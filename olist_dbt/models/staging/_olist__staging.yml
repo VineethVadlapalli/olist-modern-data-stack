@@ -1,0 +1,103 @@
+version: 2
+
+models:
+  - name: stg_olist__customers
+    description: One row per order-level customer_id. Use customer_unique_id to identify a person.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: customer_unique_id
+        tests: [not_null]
+
+  - name: stg_olist__orders
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('stg_olist__customers'), field: customer_id}
+      - name: order_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [delivered, shipped, canceled, unavailable, invoiced, processing, created, approved]
+
+  - name: stg_olist__order_items
+    columns:
+      - name: order_item_key
+        tests: [unique, not_null]
+      - name: order_id
+        tests:
+          - relationships:
+              arguments: {to: ref('stg_olist__orders'), field: order_id}
+      - name: product_id
+        tests:
+          - relationships:
+              arguments: {to: ref('stg_olist__products'), field: product_id}
+      - name: seller_id
+        tests:
+          - relationships:
+              arguments: {to: ref('stg_olist__sellers'), field: seller_id}
+
+  - name: stg_olist__order_payments
+    columns:
+      - name: order_payment_key
+        tests: [unique, not_null]
+      - name: payment_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: [credit_card, boleto, voucher, debit_card]
+
+  - name: stg_olist__order_reviews
+    description: Deduplicated to one review per order (latest answered review wins).
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: review_score
+        tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false
+
+  - name: stg_olist__products
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+
+  - name: stg_olist__sellers
+    columns:
+      - name: seller_id
+        tests: [unique, not_null]
+
+  - name: stg_olist__geolocation
+    description: One row per 5-digit zip-code prefix with median coordinates.
+    columns:
+      - name: zip_code_prefix
+        tests: [unique, not_null]
+
+  - name: stg_olist__category_translation
+    columns:
+      - name: product_category_name
+        tests: [unique, not_null]
+
+unit_tests:
+  - name: reviews_keep_latest_review_per_order
+    description: When an order has several reviews, only the most recently answered one is kept.
+    model: stg_olist__order_reviews
+    given:
+      - input: source('olist', 'olist_order_reviews_dataset')
+        format: sql
+        rows: |
+          select 'r1' as review_id, 'o1' as order_id, 1 as review_score, null::varchar as review_comment_title, 'late' as review_comment_message, timestamp '2018-01-01' as review_creation_date, timestamp '2018-01-02 10:00:00' as review_answer_timestamp
+          union all
+          select 'r2', 'o1', 4, null, '', timestamp '2018-01-05', timestamp '2018-01-06 10:00:00'
+          union all
+          select 'r3', 'o2', 5, null, null, timestamp '2018-02-01', timestamp '2018-02-01 12:00:00'
+    expect:
+      rows:
+        - {review_id: r2, order_id: o1, review_score: 4, has_comment: false}
+        - {review_id: r3, order_id: o2, review_score: 5, has_comment: false}

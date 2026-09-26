@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: mart_monthly_kpis
+    description: Monthly GMV, orders, new vs active customers, AOV, review score and delivery performance.
+    columns:
+      - name: order_month
+        tests: [unique, not_null]
+
+  - name: mart_customer_cohorts
+    description: Retention and cumulative revenue per customer by monthly acquisition cohort.
+    tests:
+      - dbt_utils_free_unique_combination:
+          arguments:
+            columns: [cohort_month, months_since_first_order]
+
+  - name: mart_seller_performance
+    description: Seller scorecard with GMV, review score, late-delivery rate and rank.
+    columns:
+      - name: seller_id
+        tests: [unique, not_null]
+
+  - name: mart_delivery_vs_reviews
+    description: Average review score and bad-review rate by how early or late the order arrived.

@@ -1,0 +1,33 @@
+name: olist
+version: "1.0.0"
+config-version: 2
+profile: olist
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Folder with the raw Olist CSVs, relative to this dbt project.
+  raw_dir: "../data/raw"
+
+models:
+  olist:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+      core:
+        +schema: core
+      analytics:
+        +schema: analytics
+
+seeds:
+  olist:
+    +schema: seeds

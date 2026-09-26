@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+data/raw/
+data/warehouse/
+olist_dbt/target/
+olist_dbt/logs/
+olist_dbt/dbt_packages/
+.tmp_dagster_home_*/
+.dagster_home/
+logs/
+.DS_Store

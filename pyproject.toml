@@ -1,0 +1,24 @@
+[project]
+name = "olist-modern-data-stack"
+version = "1.0.0"
+description = "End-to-end modern data stack on real e-commerce data: dbt + DuckDB + Dagster, with tests, CI and analytics marts."
+requires-python = ">=3.12"
+dependencies = [
+    "dagster>=1.13.24",
+    "dagster-dbt>=0.29.24",
+    "dagster-webserver>=1.13.24",
+    "dbt-duckdb>=1.11.0",
+    "duckdb>=1.5.5",
+    "requests>=2.34.2",
+]
+
+[tool.uv]
+package = false
+
+[tool.dagster]
+module_name = "orchestration.definitions"
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.11.2",
+]

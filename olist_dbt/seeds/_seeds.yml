@@ -1,0 +1,9 @@
+version: 2
+seeds:
+  - name: category_translation_patch
+    description: >
+      Two product categories in the source data have no English translation.
+      This seed fills the gap so every categorised product gets an English name.
+    columns:
+      - name: product_category_name
+        tests: [unique, not_null]
